@@ -1,32 +1,15 @@
-require "active_record"
-require "sqlite3"
-require "pry"
-require "table_print"
+require 'active_record'
+require 'sqlite3'
+require 'pry'
+require 'table_print'
 
-# database in RAM to test
+# connect to database in separate file
 ActiveRecord::Base.establish_connection(
   adapter: 'sqlite3',
-  database: ':memory:'
+  database: './catmarket.db'
 )
 
-# tables and columns
-ActiveRecord::Schema.define do
-  create_table :users, force: true do |t|
-    t.string :username
-    t.datetime :created_at, null: false
-  end
-  create_table :cats, force: true do |t|
-    t.string :catname
-    t.text :description
-    t.references :user
-#find a way to include name of user?
-    t.datetime :created_at, null: false
-    t.datetime :updated_at, null: false
-  end
-end
-
 # model classes
-
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 end
@@ -39,15 +22,16 @@ class Cat < ApplicationRecord
   belongs_to :user
 end
 
-# move to separate file pets.rb
+# initialize table using marketplace_table_define.rb - rerunning will recreate table and rewrite data
+# add data from command line or data_add_test.rb
+# use binding.pry to access data
 
-#require './my_marketplace.rb'
-
-mazzyb = User.create(username: "MazzyB")
-mazzyb.cats.create(catname: "Tizzy", description: "Can be grouchy without sleep but the most adorable stalker there is.")
-mazzyb.cats.create(catname: "Tigga", description: "Squeaky and adorable.")
-joey = User.create(username: "JoeyTK")
-joey.cats.create(catname: "Tussi", description: "Dribble and kneading central!")
-tp User.first.cats
+puts 'Users below:'
+tp User.all
+puts 'Cat Records below:'
+User.find_each do |user|
+  puts "#{user.username} has the following cats listed:"
+  tp user.cats
+end
 
 binding.pry
